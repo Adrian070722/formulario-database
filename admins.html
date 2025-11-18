@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin - Envios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <header class="bg-green-700 text-white p-4">
+      <div class="max-w-6xl mx-auto">
+        <h1 class="text-xl font-semibold">Panel de administración — Envios</h1>
+      </div>
+    </header>
+    <main class="max-w-6xl mx-auto p-4">
+      <div class="mb-4 flex items-center justify-between">
+        <p class="text-sm text-gray-600">Ver los últimos envíos recibidos desde el formulario.</p>
+        <div>
+          <button id="refresh" class="bg-green-600 text-white px-3 py-1 rounded mr-2">Refrescar</button>
+          <a href="/" class="text-sm text-green-600">Volver al formulario</a>
+        </div>
+      </div>
+
+      <div id="status" class="mb-2 text-sm text-red-600"></div>
+      <div id="list" class="bg-white shadow rounded p-4">Cargando...</div>
+    </main>
+
+    <script>
+      async function loadSubmissions(){
+        const status = document.getElementById('status');
+        const list = document.getElementById('list');
+        status.textContent = '';
+        list.textContent = 'Cargando...';
+        try{
+          const res = await fetch('/submissions');
+          if(!res.ok) throw new Error('HTTP '+res.status);
+          const docs = await res.json();
+          if(!Array.isArray(docs) || docs.length===0){
+            list.innerHTML = '<p class="text-gray-600">No hay envíos aún.</p>';
+            return;
+          }
+          // Crear tabla
+          const table = document.createElement('table');
+          table.className = 'min-w-full divide-y divide-gray-200';
+          const thead = document.createElement('thead');
+          thead.innerHTML = '<tr class="bg-gray-50"></tr>';
+          // columnas: obtener claves unionadas
+          const keys = new Set();
+          docs.forEach(d=> Object.keys(d).forEach(k=>keys.add(k)));
+          const keyArr = Array.from(keys);
+          const trh = thead.querySelector('tr');
+          keyArr.forEach(k=>{
+            const th = document.createElement('th');
+            th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+            th.textContent = k;
+            trh.appendChild(th);
+          });
+          table.appendChild(thead);
+          const tbody = document.createElement('tbody');
+          tbody.className = 'bg-white divide-y divide-gray-200';
+          docs.forEach(doc=>{
+            const tr = document.createElement('tr');
+            keyArr.forEach(k=>{
+              const td = document.createElement('td');
+              td.className = 'px-3 py-2 text-sm text-gray-700';
+              let v = doc[k];
+              if(v===undefined) v = '';
+              else if(typeof v === 'object') v = JSON.stringify(v);
+              td.textContent = v;
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          });
+          table.appendChild(tbody);
+          list.innerHTML = '';
+          list.appendChild(table);
+        }catch(err){
+          console.error(err);
+          status.textContent = 'Error cargando envíos: '+err.message;
+          list.innerHTML = '<p class="text-red-600">No se pudieron obtener los datos.</p>';
+        }
+      }
+      document.getElementById('refresh').addEventListener('click', loadSubmissions);
+      loadSubmissions();
+    </script>
+  </body>
+</html>`

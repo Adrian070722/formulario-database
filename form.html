@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <section class="form-section">
+                <form action="/submit" method="post" id="contact-form">
+                    <div id="form-container">
+                        <div class="form-mini-section">
+                            <div class="form-field">
+                                <label for="fullName">Nombre y Apellido</label>
+                                <input type="text" id="fullName" name="fullName" placeholder="nombre y apellido">
+                                <span class="contact-form-error">Este campo es obligatorio</span>
+                            </div>
+                            <div class="form-field">
+                                <label for="identification">C.I.</label>
+                                <input type="text" id="identification" name="identification" placeholder="numero de cedula">
+                                <span class="contact-form-error">Este campo es obligatorio</span>
+                            </div>
+                        </div>
+                        <div class="form-mini-section">
+                            <div class="form-field">
+                                <label for="phone">Telefono</label>
+                                <input type="tel" id="phone" name="phone" placeholder="telefono">
+                                <span class="contact-form-error">Este campo es obligatorio</span>
+                            </div>
+                            <div class="form-field">
+                                <label for="email">Correo</label>
+                                <input type="email" id="correo" name="email" placeholder="correo">
+                                <span class="contact-form-error">Este campo es obligatorio</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="send">Enviar</button>
+                </form>
+        </section>
+</body>
+</html>
