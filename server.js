@@ -45,14 +45,73 @@ const server = http.createServer((req, res) => {
       );
       return;
     }
-
-    if (method === "GET" && reqUrl === "/main.js") {
+    // Servir la página nuevo.html
+    if (method === "GET" && reqUrl === "/nuevo.html") {
       sendFile(
         res,
-        path.join(__dirname, "main.js"),
+        path.join(__dirname, "nuevo.html"),
+        "text/html; charset=utf-8"
+      );
+      return;
+    }
+
+    // Servir app.js al cliente
+    if (method === "GET" && reqUrl === "/app.js") {
+      sendFile(
+        res,
+        path.join(__dirname, "app.js"),
         "application/javascript; charset=utf-8"
       );
       return;
+    }
+
+    // Servir archivos estáticos desde la carpeta /docs (donde está actualmente tu PDF)
+    if (method === "GET" && reqUrl.startsWith("/documento/")) {
+      const filePath = path.join(__dirname, reqUrl);
+      if (!filePath.startsWith(path.join(__dirname, "documento"))) {
+        res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end("403 Forbidden");
+        return;
+      }
+      try {
+        const stat = fs.statSync(filePath);
+        if (stat.isFile()) {
+          const ext = path.extname(filePath).toLowerCase();
+          const mime =
+            ext === ".pdf" ? "application/pdf" : "application/octet-stream";
+          res.writeHead(200, { "Content-Type": mime });
+          const stream = fs.createReadStream(filePath);
+          stream.pipe(res);
+          return;
+        }
+      } catch (e) {
+        // seguir
+      }
+    }
+
+    // Servir archivos estáticos desde la carpeta /documentos (PDFs u otros)
+    if (method === "GET" && reqUrl.startsWith("/documento/")) {
+      const filePath = path.join(__dirname, reqUrl);
+      // prevenir path traversal
+      if (!filePath.startsWith(path.join(__dirname, "documento"))) {
+        res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end("403 Forbidden");
+        return;
+      }
+      try {
+        const stat = fs.statSync(filePath);
+        if (stat.isFile()) {
+          const ext = path.extname(filePath).toLowerCase();
+          const mime =
+            ext === ".pdf" ? "application/pdf" : "application/octet-stream";
+          res.writeHead(200, { "Content-Type": mime });
+          const stream = fs.createReadStream(filePath);
+          stream.pipe(res);
+          return;
+        }
+      } catch (e) {
+        // sigue hacia 404
+      }
     }
 
     // Servir panel de administración (HTML generado dinámicamente)
